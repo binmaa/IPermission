@@ -1,6 +1,8 @@
 package com.ipermission.service;
 
 import com.google.common.base.Preconditions;
+import com.ipermission.beans.PageQuery;
+import com.ipermission.beans.PageResult;
 import com.ipermission.dao.SysUserMapper;
 import com.ipermission.exception.ParamException;
 import com.ipermission.model.SysDept;
@@ -16,6 +18,7 @@ import sun.security.provider.MD5;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class SysUserService {
@@ -66,12 +69,26 @@ public class SysUserService {
     }
 
     private boolean checkTelephoneExist(String telephone,Integer userId){
-        //TODO
-        return false;
+        return sysUserMapper.countByTelephone(telephone,userId) > 0;
     }
 
     private boolean checkExistMail(String mail,Integer userId){
-        //TODO
-        return false;
+        return sysUserMapper.countByMail(mail,userId) > 0;
     }
+
+    public SysUser findByKeyWord(String keyWord){
+        return sysUserMapper.findByKeyWord(keyWord);
+    }
+
+    public PageResult<SysUser> getPageByDeptId(int deptId, PageQuery pageQuery){
+        BeanValidator.check(pageQuery);
+        int count = sysUserMapper.countByDeptId(deptId);
+        if(count > 0){
+            List<SysUser> list = sysUserMapper.getPageByDeptId(deptId, pageQuery);
+
+            return PageResult.builder().total(count).data(sysUsers).build();
+        }
+        return PageResult.builder().build();
+    }
+
 }

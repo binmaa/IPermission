@@ -29,7 +29,7 @@ public class UserParam {
     @NotNull(message = "必须提供用户所在部门")
     private Integer deptId;
 
-    @NotBlank(message = "备注需要在200个字以内")
+    @Length(min = 0,max = 200,message = "备注需要在200个字以内")
     private String remark;
 
     @NotNull(message = "必须指定用户状态")
