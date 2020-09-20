@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @ToString
 @Builder
-public class PageResult <T> {
+public class PageResult<T> {
 
      public List<T> data = Lists.newArrayList();
 

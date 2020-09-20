@@ -3,6 +3,7 @@ package com.ipermission.controller;
 import com.ipermission.beans.PageQuery;
 import com.ipermission.beans.PageResult;
 import com.ipermission.common.JsonData;
+import com.ipermission.model.SysUser;
 import com.ipermission.param.UserParam;
 import com.ipermission.service.SysUserService;
 import org.springframework.stereotype.Controller;
@@ -36,7 +37,7 @@ public class SysUserController {
     @RequestMapping("/page.json")
     @ResponseBody
     public JsonData page(@RequestParam("deptId") int deptId, PageQuery pageQuery){
-
-
+        PageResult<SysUser> result = sysUserService.getPageByDeptId(deptId, pageQuery);
+        return JsonData.success(result);
     }
 }

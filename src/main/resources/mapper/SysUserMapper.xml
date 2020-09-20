@@ -198,6 +198,6 @@
     from sys_user
     where dept_id = #{deptId}
     order by username
-    limit #{page.offset},#{page.pageSize}
+    limit #{page.offSet},#{page.pageSize}
   </select>
 </mapper>

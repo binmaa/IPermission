@@ -198,6 +198,8 @@
         var lastClickDeptId = -1;
         var deptListTemplate = $("#deptListTemplate").html();
         Mustache.parse(deptListTemplate);
+        var userListTemplate = $('#userListTemplate').html();
+        Mustache.parse(userListTemplate);
 
         loadDeptTree();
         function loadDeptTree(){
@@ -306,7 +308,7 @@
         /**加载用户**/
         function loadUserList(deptId){
             var pageSize = $("#pageSize").val();
-            var url = "/sys/user/list.json?deptId="+deptId;
+            var url = "/sys/user/page.json?deptId="+deptId;
             var pageNo = $("#userPage .pageNo").val() || 1;
             $.ajax({
                 url:url,
@@ -327,10 +329,10 @@
                     var rendered = Mustache.render(userListTemplate,{
                         userList:result.data.data,
                         "showDeptName":function (){
-                            return deptMap[this.deptId].name
+                            return deptMap[this.deptId].name;
                         },
                         "showStatus":function(){
-                            return this.status == 1?'有效':(this.status == 0?'无效':'删除')
+                            return this.status == 1?'有效':(this.status == 0?'无效':'删除');
                         },
                         "bold":function(){
                             return function(text,render){
@@ -355,15 +357,83 @@
                 }
                 var pageSize = $("#pageSize").val();
                 var pageNo = $("#userPage .pageNo").val() || 1;
-                renderPage(url,result.data.total,pageSize,result.data.total > 0 ? result.data.length : 0 ,"userPage",renderUserListAndPage);//?
+                renderPage(url,result.data.total,pageNo,pageSize,(result.data.total > 0 ? result.data.data.length : 0) ,"userPage",renderUserListAndPage);//?
             }else{
                 showMessage("获取部门用户列表",result.msg,false);
             }
         }
-
+        /**用户点击事件*/
         function bindUserClick(){
-            //todo
+            //编辑
+            $(".user-edit").click(function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                var userId = $(this).attr("data-id");
+                $('#dialog-user-form').dialog({
+                    model:true,
+                    title:"更新用户",
+                    open:function (event,ui) {
+                        $('.ui-dialog-titlebar-close',$(this).parent()).hide();
+                        optionStr="";
+                        $('#userForm')[0].reset();
+                        recursiveRenderDeptSelect(deptList,1);
+                        $('#deptSelectId').html(optionStr);
+                        var targetUser = userMap[userId];
+                        if(targetUser){
+                            $('#deptSelectId').val(targetUser.deptId);
+                            $('#userName').val(targetUser.username);
+                            $('#userMail').val(targetUser.mail);
+                            $('#userTelephone').val(targetUser.telephone);
+                            $('#userStatus').val(targetUser.status);
+                            $('#userRemark').val(targetUser.remark);
+                            $('#userId').val(targetUser.id);
+                        }
+                    },buttons:{
+                        "保存":function(e){
+                            e.preventDefault();
+                            e.stopPropagation();
+                            updateUser(false,function(data){
+                                $('#dialog-user-form').dialog("close");
+                                loadUserList(lastClickDeptId);
+                            },function(data){
+                                showMessage("更新用户",data.msg,false);
+                            })
+                        },
+                        "取消":function(){
+                            $('#dialog-user-form').dialog("close");
+                        }
+                    }
+                });
+            });
         }
+        /**添加用户*/
+        $('.user-add').click(function(){
+            $('#dialog-user-form').dialog({
+                model:true,
+                title:"新增用户",
+                open:function (event,ui) {
+                    $('.ui-dialog-titlebar-close',$(this).parent()).hide();
+                    optionStr="";
+                    recursiveRenderDeptSelect(deptList,1);
+                    $('#userForm')[0].reset();
+                    $('#deptSelectId').html(optionStr);
+                },buttons:{
+                    "添加":function(e){
+                        e.preventDefault();
+                        e.stopPropagation();
+                        updateUser(true,function(data){
+                            $('#dialog-user-form').dialog("close");
+                            loadUserList(lastClickDeptId);
+                        },function(data){
+                            showMessage("新增用户",data.msg,false);
+                        })
+                    },
+                    "取消":function(){
+                        $('#dialog-user-form').dialog("close");
+                    }
+                }
+            });
+        });
         /**添加部门*/
         $('.dept-add').click(function(){
             $('#dialog-dept-form').dialog({
@@ -415,6 +485,32 @@
                     }
                 });
             }
+        }
+
+        /**
+         * 更新用户
+         * @param isCreate
+         * @param successCallback
+         * @param failCallback
+         */
+        function updateUser(isCreate,successCallback,failCallback){
+            $.ajax({
+                url:isCreate ? "/sys/user/save.json" : "/sys/user/update.json",
+                type:"POST",
+                data:$('#userForm').serializeArray(),
+                success:function (result) {
+                    if(result.ret){
+                        if(typeof successCallback == "function"){
+                            loadDeptTree();
+                            successCallback(result);
+                        }
+                    }else{
+                        if(typeof failCallback == "function"){
+                            failCallback(result);
+                        }
+                    }
+                }
+            });
         }
 
         /**

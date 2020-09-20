@@ -152,6 +152,12 @@
       <artifactId>commons-collections</artifactId>
       <version>3.2.2</version>
     </dependency>
+    <!-- mail -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-email</artifactId>
+      <version>1.4</version>
+    </dependency>
     <!--热部署插件-->
     <!--<dependency>
       <groupId>org.springframework.boot</groupId>

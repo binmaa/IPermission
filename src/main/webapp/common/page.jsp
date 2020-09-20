@@ -32,7 +32,7 @@
 </script>
 
 <script type="text/javascript">
-    var paginateTemplate = $("paginateTemplate").html();
+    var paginateTemplate = $("#paginateTemplate").html();
     Mustache.parse(paginateTemplate);
 
     /**
@@ -56,6 +56,7 @@
             firstUrl : pageNo == 1 ? '':url+paramStartChar+"pageNo=1&pageSize="+pageSize,
             beforePageNo :pageNo == 1 ? 1 : pageNo -1,
             beforeUrl: pageNo == 1 ? '':url+paramStartChar+"pageNo="+ (pageNo -1) +"&pageSize="+pageSize,
+            pageNo:pageNo,
             nextPageNo:pageNo >= maxPageNo ? maxPageNo :pageNo + 1,
             nextUrl:pageNo >=maxPageNo ? '':url+paramStartChar+"pageNo="+ (pageNo+1) +"&pageSize="+pageSize,
             lastUrl:pageNo >=maxPageNo ? '':url+paramStartChar+"pageNo="+ maxPageNo +"&pageSize="+pageSize,

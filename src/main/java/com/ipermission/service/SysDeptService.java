@@ -1,16 +1,19 @@
 package com.ipermission.service;
 
 import com.google.common.base.Preconditions;
+import com.ipermission.common.RequestHolder;
 import com.ipermission.dao.SysDeptMapper;
 import com.ipermission.exception.ParamException;
 import com.ipermission.model.SysDept;
 import com.ipermission.param.DeptParam;
 import com.ipermission.util.BeanValidator;
+import com.ipermission.util.IpUtil;
 import com.ipermission.util.LevelUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sun.net.util.IPAddressUtil;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -30,9 +33,9 @@ public class SysDeptService {
                     .seq(deptParam.getSeq()).remark(deptParam.getRemark()).build();
             sysDept.setLevel(LevelUtils.calculateLevel(
                     this.getLevel(deptParam.getParentId()),deptParam.getParentId()));
-            sysDept.setOperator("system-save");//todo
-            sysDept.setOperaterIp("127.0.0.1");//todo
-            sysDept.setOperaterTime(new Date());//todo
+            sysDept.setOperator(RequestHolder.getCurrentUser().getUsername());
+            sysDept.setOperaterIp(IpUtil.getUserIP(RequestHolder.getCurrentRequest()));
+            sysDept.setOperaterTime(new Date());
             sysDeptMapper.insert(sysDept);
         }
 
@@ -50,9 +53,9 @@ public class SysDeptService {
         after.setLevel(LevelUtils.calculateLevel(
                 this.getLevel(deptParam.getParentId()),deptParam.getParentId()));
 
-        after.setOperator("system-update");//todo
-        after.setOperaterIp("127.0.0.1");//todo
-        after.setOperaterTime(new Date());//todo
+        after.setOperator(RequestHolder.getCurrentUser().getUsername());
+        after.setOperaterIp(IpUtil.getUserIP(RequestHolder.getCurrentRequest()));
+        after.setOperaterTime(new Date());
         if(this.getLevel(deptParam.getParentId()).startsWith(before.getLevel()) &&
                 !StringUtils.equals(this.getLevel(deptParam.getParentId()),before.getLevel())){
             throw new ParamException("当前部门不允许挂接到自己的子部门下");
