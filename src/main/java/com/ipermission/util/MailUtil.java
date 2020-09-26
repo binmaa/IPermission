@@ -15,7 +15,7 @@ public class MailUtil {
         String from = "m_bingo@qq.com";
         int port = 587;
         String host = "smtp.qq.com";
-        String nickname = "";
+        String nickname = "nigrwqdlopmyiffi";
 
         HtmlEmail email = new HtmlEmail();
         try {

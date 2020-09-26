@@ -4,8 +4,12 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.ipermission.dao.SysAclMapper;
+import com.ipermission.dao.SysAclModuleMapper;
 import com.ipermission.dao.SysDeptMapper;
+import com.ipermission.dto.AclModuleLevelDto;
 import com.ipermission.dto.DeptLevelDto;
+import com.ipermission.model.SysAclModule;
 import com.ipermission.model.SysDept;
 import com.ipermission.util.LevelUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -18,6 +22,66 @@ import java.util.*;
 public class SysTreeService {
     @Resource
     private SysDeptMapper sysDeptMapper;
+
+    @Resource
+    private SysAclModuleMapper sysAclModuleMapper;
+
+
+    public List<AclModuleLevelDto> aclModuleTree(){
+        List<SysAclModule> allAclModule = sysAclModuleMapper.getAllAclModule();
+        List<AclModuleLevelDto> aclModuleLevelDtos = Lists.newArrayList();
+        for (SysAclModule sysAclModule:allAclModule){
+            AclModuleLevelDto aclModuleAdapt = AclModuleLevelDto.adapt(sysAclModule);
+            aclModuleLevelDtos.add(aclModuleAdapt);
+        }
+        return aclModuleToTree(aclModuleLevelDtos);
+    }
+    /**
+     * 设置权限模块tree首层 构建层级权限模块集合levelAclModuleMap {level ->[adpt1,adpt2...]}
+     * @param aclModuleLevelList 全部权限模块集合
+     * @return
+     */
+    public List<AclModuleLevelDto> aclModuleToTree (List<AclModuleLevelDto> aclModuleLevelList){
+        if(CollectionUtil.isEmpty(aclModuleLevelList)){
+            return Lists.newArrayList();
+        }
+        //level ->[adpt1,adpt2...]
+        Multimap<String, AclModuleLevelDto> levelAclModuleMap = ArrayListMultimap.create();
+        List<AclModuleLevelDto> rootList = Lists.newArrayList();//权限模块树首层
+        for(AclModuleLevelDto aclModuleLevelDto : aclModuleLevelList){
+            levelAclModuleMap.put(aclModuleLevelDto.getLevel(),aclModuleLevelDto);
+            if(LevelUtils.ROOT.equals(aclModuleLevelDto.getLevel())){
+                rootList.add(aclModuleLevelDto);
+            }
+        }
+        Collections.sort(rootList, aclModuleSeqComparator);
+        transfromAclModuleTree(rootList,LevelUtils.ROOT,levelAclModuleMap);//递归构建权限模块树 从首层开始递归构建所有子层
+        return rootList;
+    }
+    /**
+     * 构建权限模块树 递归
+     * @param aclModuleLevelList 当前层级权限模块集合
+     * @param level 父层级
+     * @param levelAclModuleMap 所有权限模块集合{level,aclModlueLevellist}
+     */
+    private void transfromAclModuleTree(List<AclModuleLevelDto> aclModuleLevelList, String level, Multimap<String, AclModuleLevelDto> levelAclModuleMap) {
+        for (int i = 0; i < aclModuleLevelList.size(); i++) {
+            //遍历该层每个元素
+            AclModuleLevelDto aclModuleLevelDto = aclModuleLevelList.get(i);
+            //处理当前层级数据
+            String nextLevel = LevelUtils.calculateLevel(level, aclModuleLevelDto.getId());
+            List<AclModuleLevelDto> tempAclModlueList = (List<AclModuleLevelDto>) levelAclModuleMap.get(nextLevel);
+            if(CollectionUtils.isNotEmpty(tempAclModlueList)){
+                //排序
+                Collections.sort(tempAclModlueList,aclModuleSeqComparator);
+                //设置下一层权限模块
+                aclModuleLevelDto.setAclModuleList(tempAclModlueList);
+                //进行下一层处理
+                transfromAclModuleTree(tempAclModlueList,nextLevel,levelAclModuleMap);
+            }
+        }
+    }
+
 
     public List<DeptLevelDto> deptTree(){
         List<SysDept> allDept = sysDeptMapper.getAllDept();
@@ -79,6 +143,12 @@ public class SysTreeService {
     public Comparator<DeptLevelDto> deptSeqComparator = new Comparator<DeptLevelDto>() {
         @Override
         public int compare(DeptLevelDto o1, DeptLevelDto o2) {
+            return o1.getSeq()-o2.getSeq();
+        }
+    };
+    public Comparator<AclModuleLevelDto> aclModuleSeqComparator = new Comparator<AclModuleLevelDto>() {
+        @Override
+        public int compare(AclModuleLevelDto o1, AclModuleLevelDto o2) {
             return o1.getSeq()-o2.getSeq();
         }
     };

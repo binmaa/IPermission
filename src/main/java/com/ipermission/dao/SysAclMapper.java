@@ -2,6 +2,7 @@ package com.ipermission.dao;
 
 import com.ipermission.model.SysAcl;
 
+
 public interface SysAclMapper {
     int deleteByPrimaryKey(Integer id);
 
