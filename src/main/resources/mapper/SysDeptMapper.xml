@@ -165,7 +165,7 @@
     WHERE parent_id=#{parentId}
     AND name = #{deptName}
     <if test="deptId != null">
-       AND id = #{deptId}
+       AND id != #{deptId}
     </if>
 </select>
 </mapper>

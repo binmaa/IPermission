@@ -4,6 +4,7 @@ import com.ipermission.common.JsonData;
 import com.ipermission.dto.AclModuleLevelDto;
 import com.ipermission.dto.DeptLevelDto;
 import com.ipermission.param.AclModuleParam;
+import com.ipermission.service.SysAclModuleService;
 import com.ipermission.service.SysTreeService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,22 +21,25 @@ public class SysAclModuleController {
     @Resource
     private SysTreeService sysTreeService;
 
+    @Resource
+    private SysAclModuleService sysAclModuleService;
+
     @RequestMapping("/aclModule.page")
-    public ModelAndView dept(){
+    public ModelAndView aclModel(){
         return new ModelAndView("acl");
     }
 
     @RequestMapping("/save.json")
     @ResponseBody
-    public JsonData saveDept(AclModuleParam param){
-
+    public JsonData saveAclModel(AclModuleParam param){
+        sysAclModuleService.save(param);
         return JsonData.success();
     }
 
     @RequestMapping("/update.json")
     @ResponseBody
-    public JsonData updateDept(AclModuleParam param){
-
+    public JsonData updateAclModel(AclModuleParam param){
+        sysAclModuleService.update(param);
         return JsonData.success();
     }
 

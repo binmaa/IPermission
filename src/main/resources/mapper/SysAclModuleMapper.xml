@@ -167,11 +167,11 @@
 
 <select id="countByNameAndParent" parameterType="map" resultType="int">
     SELECT count(1)
-    FROM sys_acl_model
+    FROM sys_acl_module
     WHERE parent_id=#{parentId}
-    AND name = #{aclModelName}
-    <if test="aclModelId != null">
-       AND id = #{aclModelId}
+    AND name = #{aclModuleName}
+    <if test="aclModuleId != null">
+       AND id != #{aclModuleId}
     </if>
 </select>
 

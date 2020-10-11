@@ -29,7 +29,7 @@ public class SysAclModuleService {
             throw new ParamException("同一层级下存在相同名称的权限模块");
         }else{
             SysAclModule aclModule = SysAclModule.builder().name(param.getName()).parentId(param.getParentId())
-                    .seq(param.getSeq()).remark(param.getRemark()).build();
+                    .seq(param.getSeq()).status(param.getStatus()).remark(param.getRemark()).build();
             aclModule.setLevel(LevelUtils.calculateLevel(
                     this.getLevel(param.getParentId()),param.getParentId()));
             aclModule.setOperator(RequestHolder.getCurrentUser().getUsername());
@@ -46,7 +46,7 @@ public class SysAclModuleService {
         SysAclModule before = sysAclModuleMapper.selectByPrimaryKey(param.getId());
         Preconditions.checkNotNull(before,"待更新的权限模块不存在");
         SysAclModule after = SysAclModule.builder().id(param.getId()).name(param.getName()).parentId(param.getParentId())
-                .seq(param.getSeq()).remark(param.getRemark()).build();
+                .seq(param.getSeq()).status(param.getStatus()).remark(param.getRemark()).build();
         after.setLevel(LevelUtils.calculateLevel(
                 this.getLevel(param.getParentId()),param.getParentId()));
 

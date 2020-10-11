@@ -1,7 +1,6 @@
 package com.ipermission.dao;
 
 import com.ipermission.model.SysAclModule;
-import com.ipermission.model.SysDept;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -19,9 +18,9 @@ public interface SysAclModuleMapper {
 
     int updateByPrimaryKey(SysAclModule record);
 
-    int countByNameAndParent(@Param("parentId")Integer parentId, @Param("aclModelName")String name, @Param("aclModelId")Integer id);
+    int countByNameAndParent(@Param("parentId")Integer parentId, @Param("aclModuleName")String name, @Param("aclModuleId")Integer id);
 
-    void batchUpdateLevel(@Param("sysAlcModelList")List<SysAclModule> sysAlcModuleList);
+    void batchUpdateLevel(@Param("sysAlcModuleList")List<SysAclModule> sysAlcModuleList);
 
     List<SysAclModule> getChildAclModuleListByLevel(@Param("level")String level);
 
