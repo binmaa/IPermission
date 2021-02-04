@@ -36,6 +36,13 @@ public class SysAclModuleController {
         return JsonData.success();
     }
 
+    @RequestMapping("/delete.json")
+    @ResponseBody
+    public JsonData delete(Integer aclModuleId){
+        sysAclModuleService.delete(aclModuleId);
+        return JsonData.success();
+    }
+
     @RequestMapping("/update.json")
     @ResponseBody
     public JsonData updateAclModel(AclModuleParam param){

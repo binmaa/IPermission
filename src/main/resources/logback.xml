@@ -22,7 +22,7 @@
        <appender-ref ref="permission"/>
     </logger>-->
     <!-- trace<debug<info<warn<erro -->
-    <root level="INFO">
+    <root level="ERROR">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

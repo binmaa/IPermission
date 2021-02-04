@@ -200,4 +200,17 @@
     order by username
     limit #{page.offSet},#{page.pageSize}
   </select>
+
+  <select id="getUserListByIds" parameterType="map" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" />
+    from sys_user
+    where id in
+    <foreach collection="idList" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+  </select>
+    <select id="getAll"  resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" />
+    from sys_user
+  </select>
 </mapper>

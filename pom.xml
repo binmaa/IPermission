@@ -158,6 +158,15 @@
       <artifactId>commons-email</artifactId>
       <version>1.4</version>
     </dependency>
+
+    <!--redis-->
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+      <version>3.5.1</version>
+      <type>jar</type>
+    </dependency>
+
     <!--热部署插件-->
     <!--<dependency>
       <groupId>org.springframework.boot</groupId>

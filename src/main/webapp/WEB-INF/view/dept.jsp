@@ -241,8 +241,21 @@
                 var deptId = $(this).attr("data-id");
                 var deptName = $(this).attr("data-name");
                 if(confirm("确定删除部门【"+deptName+"】吗？")){
-                    //todo
-                    console.log("delete dept id"+deptId);
+                    $.ajax({
+                        url:"/sys/dept/delete.json",
+                        data:{
+                            deptId:deptId
+                        },
+                        type:"POST",
+                        success:function (result) {
+                            if(result.ret){
+                                loadDeptTree();
+                                showMessage("删除部门","删除部门成功",true);
+                            }else{
+                                showMessage("删除部门",result.msg,false);
+                            }
+                        }
+                    })
                 }
             });
             //点击部门名称
@@ -364,6 +377,25 @@
         }
         /**用户点击事件*/
         function bindUserClick(){
+            //用户权限
+            $(".user-acl").click(function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                var userId = $(this).attr("data-id");
+                $.ajax({
+                    url:"/sys/user/acls.json",
+                    data:{
+                        userId:userId
+                    },
+                    success:function (result) {
+                        if(result.ret){
+                            console.log(result);
+                        }else{
+                            showMessage("获取用户权限数据",result.msg,false);
+                        }
+                    }
+                })
+            });
             //编辑
             $(".user-edit").click(function(e){
                 e.preventDefault();

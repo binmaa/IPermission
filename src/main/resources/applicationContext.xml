@@ -11,6 +11,10 @@
             </list>
         </property>
     </bean>
+
+    <!--导入redis配置-->
+    <import resource="redis.xml"/>
+
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
         <property name="driverClassName" value="${db.driverClassName}"/>
         <property name="url" value="${db.url}"/>

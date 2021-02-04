@@ -13,7 +13,10 @@ import java.util.List;
 @Setter
 @ToString
 public class AclModuleLevelDto extends SysAclModule{
+    /**当前权限模块下的权限模块列表*/
     private List<AclModuleLevelDto> aclModuleList= Lists.newArrayList();
+    /**当前权限模块下的权限列表**/
+    private List<AclDto> aclList = Lists.newArrayList();
 
     public static AclModuleLevelDto adapt (SysAclModule sysAclModule){
         AclModuleLevelDto aclModuleLevelDto = new AclModuleLevelDto();

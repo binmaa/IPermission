@@ -29,8 +29,8 @@ public class AclParam {
     @NotNull(message = "必须指定权限点顺序")
     private Integer seq;
     @NotNull(message = "必须指定权限点状态")
-    @Min(value = 1,message = "权限点状态不合法")
-    @Max(value = 2,message = "权限点状态不合法")
+    @Min(value = 0,message = "权限点状态不合法")
+    @Max(value = 1,message = "权限点状态不合法")
     private Integer status;
     @Length(min = 0,max = 200,message ="备注长度0-200个字符")
     private String remark;

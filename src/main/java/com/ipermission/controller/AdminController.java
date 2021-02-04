@@ -6,7 +6,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/admin")
-public class AdcminController {
+public class AdminController {
     @RequestMapping("/index.page")
     public ModelAndView index(){
         return new ModelAndView("admin");

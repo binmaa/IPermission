@@ -12,12 +12,14 @@ import com.ipermission.model.SysAcl;
 import com.ipermission.param.AclParam;
 import com.ipermission.util.BeanValidator;
 import com.ipermission.util.IpUtil;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+@Service
 public class SysAclService {
     @Resource
     private SysAclMapper sysAclMapper;

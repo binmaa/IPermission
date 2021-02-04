@@ -153,7 +153,7 @@
             </tr>
             <tr>
                 <td><label for="aclUrl">URL</label></td>
-                <td><input type="text" name="url" id="aclUrl" value="1" class="text ui-widget-content ui-corner-all"></td>
+                <td><input type="text" name="url" id="aclUrl" value="" class="text ui-widget-content ui-corner-all"></td>
             </tr>
             <tr>
                 <td><label for="aclStatus">状态</label></td>
@@ -306,6 +306,30 @@
                 handleAclModuleSelected(aclModuleId);
             });
 
+            $(".aclModule-delete").click(function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var aclModuleId = $(this).attr("data-id");
+                var aclModuleName = $(this).attr("data-name");
+                if(confirm("确定删除权限模块【"+aclModuleName+"】吗？")){
+                    $.ajax({
+                        url:"/sys/aclModule/delete.json",
+                        data:{
+                            aclModuleId:aclModuleId
+                        },
+                        type:"POST",
+                        success:function (result) {
+                            if(result.ret){
+                                loadAclModuleTree();
+                                showMessage("删除权限模块","删除权限模块成功",true);
+                            }else{
+                                showMessage("删除权限模块",result.msg,false);
+                            }
+                        }
+                    })
+                }
+            });
+
             $(".aclModule-edit").click(function (e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -359,7 +383,153 @@
         }
         function loadAclList(aclModuleId){
             console.log("点击的权限模块是"+aclModuleId);
+            var pageSize = $("#pageSize").val();
+            var url = "/sys/acl/page.json?aclModuleId="+aclModuleId;
+            var pageNo = $("#aclPage .pageNo").val() || 1;
+            $.ajax({
+                url:url,
+                data:{
+                    pageSize : pageSize,
+                    pageNo : pageNo
+                },
+                success:function(result){
+                    renderAclListAndPage(result,url);
+                }
+            })
         }
+        function renderAclListAndPage(result,url){
+            if(result.ret){
+                if(result.data.total > 0){
+                    var rendered = Mustache.render(aclListTemplate,{
+                        aclList:result.data.data,
+                        "showAclModuleName":function (){
+                            return aclModuleMap[this.aclModuleId].name;
+                        },
+                        "showType":function(){
+                            return this.type == 1?'菜单':this.type==2?'按钮':'其他';
+                        },
+                        "showStatus":function () {
+                            return this.status == 1?'有效':'无效';
+                        },
+                        "bold":function () {
+                            return function(text,render){
+                                var status = render(text);
+                                if(status == '有效'){
+                                    return "<span class='label label-sm label-success'>有效</span>";
+                                }else if(status == '无效'){
+                                    return "<span class='label label-sm label-warning'>无效</span>";
+                                }else{
+                                    return "<span class='label'>删除</span>";
+                                }
+                            }
+                        }
+                    })
+                    $("#aclList").html(rendered);
+                    bindAclClick();
+                    $.each(result.data.data,function (i,acl) {
+                        aclMap[acl.id] = acl;
+                    });
+                }else{
+                    $("#aclList").html('');
+                }
+                var pageSize = $("#pageSize").val();
+                var pageNo = $("#aclPage .pageNo").val() || 1;
+                renderPage(url,result.data.total,pageNo,pageSize,(result.data.total > 0 ? result.data.data.length : 0) ,"aclPage",renderAclListAndPage);//?
+            }else{
+                showMessage("获取权限列表",result.msg,false);
+            }
+        }
+        function bindAclClick(){
+            //权限点被分配到的用户和角色
+            $(".acl-role").click(function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                var aclId = $(this).attr("data-id");
+                $.ajax({
+                    url:"/sys/acl/acls.json",
+                    data:{
+                        aclId:aclId
+                    },
+                    success:function (result) {
+                        if(result.ret){
+                            console.log(result);
+                        }else{
+                            showMessage("获取权限点分配的用户和角色",result.msg,false);
+                        }
+                    }
+                })
+            });
+
+            $(".acl-edit").click(function (e){
+                e.preventDefault();
+                e.stopPropagation();
+                var dataId = $(this).attr("data-id");
+                $('#dialog-acl-form').dialog({
+                    model:true,
+                    title:"更新权限",
+                    open:function (event,ui) {
+                        $('.ui-dialog-titlebar-close',$(this).parent()).hide();
+                        optionStr="";
+                        recursiveRenderAclModuleSelect(aclModuleList,1);
+                        $('#aclForm')[0].reset();
+                        $('#aclModuleSelectId').html(optionStr);
+                        var targetAcl = aclMap[dataId];
+                        $("#aclId").val(dataId);
+                        $("#aclType").val(targetAcl.type);
+                        $('#aclModuleSelectId').val(targetAcl.aclModuleId);
+                        $("#aclUrl").val(targetAcl.url);
+                        $("#aclName").val(targetAcl.name);
+                        $("#aclStatus").val(targetAcl.status);
+                        $("#aclSeq").val(targetAcl.seq);
+                        $("#aclRemark").val(targetAcl.remark);
+                    },buttons:{
+                        "更新":function(e){
+                            e.preventDefault();
+                            e.stopPropagation();
+                            updateAcl(false,function(data){
+                                $('#dialog-acl-form').dialog("close");
+                            },function(data){
+                                showMessage("更新权限",data.msg,false);
+                            })
+                        },
+                        "取消":function(){
+                            $('#dialog-acl-form').dialog("close");
+                        }
+                    }
+                });
+
+            })
+        }
+
+        $(".acl-add").click(function () {
+            $('#dialog-acl-form').dialog({
+                model:true,
+                title:"新增权限",
+                open:function (event,ui) {
+                    $('.ui-dialog-titlebar-close',$(this).parent()).hide();
+                    optionStr="";
+                    recursiveRenderAclModuleSelect(aclModuleList,1);
+                    $('#aclForm')[0].reset();
+                    $('#aclModuleSelectId').html(optionStr);
+                },buttons:{
+                    "添加":function(e){
+                        e.preventDefault();
+                        e.stopPropagation();
+                        updateAcl(true,function(data){
+                            $('#dialog-acl-form').dialog("close");
+                        },function(data){
+                            showMessage("新增权限",data.msg,false);
+                        })
+                    },
+                    "取消":function(){
+                        $('#dialog-acl-form').dialog("close");
+                    }
+                }
+            });
+
+        })
+
+
 
         $(".aclModule-add").click(function () {
             $('#dialog-aclModule-form').dialog({
@@ -427,6 +597,32 @@
                     if(result.ret){
                         if(typeof successCallback == "function"){
                             loadAclModuleTree();
+                            successCallback(result);
+                        }
+                    }else{
+                        if(typeof failCallback == "function"){
+                            failCallback(result);
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * 更新权限
+         * @param isCreate
+         * @param successCallback
+         * @param failCallback
+         */
+        function updateAcl(isCreate,successCallback,failCallback){
+            $.ajax({
+                url:isCreate ? "/sys/acl/save.json" : "/sys/acl/update.json",
+                type:"POST",
+                data:$('#aclForm').serializeArray(),
+                success:function (result) {
+                    if(result.ret){
+                        if(typeof successCallback == "function"){
+                            loadAclList(lastClickAclModuleId);
                             successCallback(result);
                         }
                     }else{

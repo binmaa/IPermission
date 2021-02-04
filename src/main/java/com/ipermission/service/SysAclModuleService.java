@@ -2,6 +2,7 @@ package com.ipermission.service;
 
 import com.google.common.base.Preconditions;
 import com.ipermission.common.RequestHolder;
+import com.ipermission.dao.SysAclMapper;
 import com.ipermission.dao.SysAclModuleMapper;
 import com.ipermission.exception.ParamException;
 import com.ipermission.model.SysAclModule;
@@ -22,6 +23,9 @@ import java.util.List;
 public class SysAclModuleService {
     @Resource
     private SysAclModuleMapper sysAclModuleMapper;
+
+    @Resource
+    private SysAclMapper sysAclMapper;
 
     public void save(AclModuleParam param){
         BeanValidator.check(param);
@@ -59,6 +63,18 @@ public class SysAclModuleService {
         }
         updateWithChild(before,after);
 
+    }
+    
+    public void delete(Integer aclModuleId){
+        SysAclModule sysAclModule = sysAclModuleMapper.selectByPrimaryKey(aclModuleId);
+        Preconditions.checkNotNull(sysAclModule,"删除的权限模块不存在");
+        if(sysAclModuleMapper.countByParent(aclModuleId) > 0){
+            throw new ParamException("权限模块下存在子模块");
+        }
+        if(sysAclMapper.countByAclModuleId(aclModuleId) > 0){
+            throw new ParamException("权限模块下存在权限");
+        }
+        sysAclModuleMapper.deleteByPrimaryKey(aclModuleId);
     }
 
     @Transactional
