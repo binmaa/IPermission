@@ -13,9 +13,9 @@ public class MailUtil {
     public static boolean send(Mail mail) {
 
         String from = "m_bingo@qq.com";
-        int port = 587;
+        int port = 465;
         String host = "smtp.qq.com";
-        String nickname = "nigrwqdlopmyiffi";
+        String nickname = "qtztuketqrlmjfid";//nigrwqdlopmyiffi
 
         HtmlEmail email = new HtmlEmail();
         try {

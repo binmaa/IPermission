@@ -28,7 +28,7 @@
     delete from sys_user
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.ipermission.model.SysUser" >
+  <insert id="insert" parameterType="com.ipermission.model.SysUser" keyProperty="id" useGeneratedKeys="true">
     insert into sys_user (id, username, telephone,
       mail, password, remark,
       dept_id, status, operator,
@@ -209,7 +209,7 @@
       #{id}
     </foreach>
   </select>
-    <select id="getAll"  resultMap="BaseResultMap">
+  <select id="getAll"  resultMap="BaseResultMap">
     select <include refid="Base_Column_List" />
     from sys_user
   </select>

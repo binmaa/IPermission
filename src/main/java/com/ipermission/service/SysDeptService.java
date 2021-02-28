@@ -27,6 +27,9 @@ public class SysDeptService {
     @Resource
     private SysUserMapper sysUserMapper;
 
+    @Resource
+    private SysLogService sysLogService;
+
     public void save(DeptParam deptParam){
         BeanValidator.check(deptParam);
         if(checkExist(deptParam.getParentId(),deptParam.getName(),deptParam.getId())){
@@ -40,6 +43,7 @@ public class SysDeptService {
             sysDept.setOperaterIp(IpUtil.getUserIP(RequestHolder.getCurrentRequest()));
             sysDept.setOperaterTime(new Date());
             sysDeptMapper.insert(sysDept);
+            sysLogService.saveDeptLog(null,sysDept);
         }
     }
 
@@ -53,6 +57,7 @@ public class SysDeptService {
             throw new ParamException("当前部门下存在用户，无法删除");
         }
         sysDeptMapper.deleteByPrimaryKey(deptId);
+        sysLogService.saveDeptLog(sysDept,null);
     }
 
     public void update(DeptParam deptParam){
@@ -76,6 +81,7 @@ public class SysDeptService {
         }
 
         updateWithChild(before,after);
+        sysLogService.saveDeptLog(before,after);
     }
 
     /**

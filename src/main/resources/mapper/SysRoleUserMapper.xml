@@ -22,7 +22,7 @@
     delete from sys_role_user
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.ipermission.model.SysRoleUser" >
+  <insert id="insert" parameterType="com.ipermission.model.SysRoleUser" keyProperty="id" useGeneratedKeys="true">
     insert into sys_role_user (id, role_id, user_id, 
       operator, operater_time, operater_ip
       )

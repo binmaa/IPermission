@@ -7,7 +7,7 @@ public class SysLog {
 
     private Integer type;
 
-    private String targetId;
+    private Integer targetId;
 
     private String operator;
 
@@ -33,12 +33,12 @@ public class SysLog {
         this.type = type;
     }
 
-    public String getTargetId() {
+    public Integer getTargetId() {
         return targetId;
     }
 
-    public void setTargetId(String targetId) {
-        this.targetId = targetId == null ? null : targetId.trim();
+    public void setTargetId(Integer targetId) {
+        this.targetId = targetId;
     }
 
     public String getOperator() {

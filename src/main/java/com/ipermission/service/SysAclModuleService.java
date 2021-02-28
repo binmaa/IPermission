@@ -27,6 +27,9 @@ public class SysAclModuleService {
     @Resource
     private SysAclMapper sysAclMapper;
 
+    @Resource
+    private SysLogService sysLogService;
+
     public void save(AclModuleParam param){
         BeanValidator.check(param);
         if(checkExist(param.getParentId(),param.getName(),param.getId())){
@@ -40,6 +43,7 @@ public class SysAclModuleService {
             aclModule.setOperaterIp(IpUtil.getUserIP(RequestHolder.getCurrentRequest()));
             aclModule.setOperaterTime(new Date());
             sysAclModuleMapper.insert(aclModule);
+            sysLogService.saveAclModuleLog(null,aclModule);
         }
     }
     public void update(AclModuleParam param){
@@ -62,7 +66,7 @@ public class SysAclModuleService {
             throw new ParamException("当前权限模块不允许挂接到自己的子模块下");
         }
         updateWithChild(before,after);
-
+        sysLogService.saveAclModuleLog(before,after);
     }
     
     public void delete(Integer aclModuleId){
@@ -75,6 +79,7 @@ public class SysAclModuleService {
             throw new ParamException("权限模块下存在权限");
         }
         sysAclModuleMapper.deleteByPrimaryKey(aclModuleId);
+        sysLogService.saveAclModuleLog(sysAclModule,null);
     }
 
     @Transactional
@@ -97,6 +102,7 @@ public class SysAclModuleService {
             }
         }
         sysAclModuleMapper.updateByPrimaryKey(after);
+
     }
 
     /**

@@ -9,6 +9,7 @@ import com.ipermission.common.RequestHolder;
 import com.ipermission.dao.SysAclMapper;
 import com.ipermission.exception.ParamException;
 import com.ipermission.model.SysAcl;
+import com.ipermission.model.SysLog;
 import com.ipermission.param.AclParam;
 import com.ipermission.util.BeanValidator;
 import com.ipermission.util.IpUtil;
@@ -24,6 +25,9 @@ public class SysAclService {
     @Resource
     private SysAclMapper sysAclMapper;
 
+    @Resource
+    private SysLogService sysLogService;
+
     public void save(AclParam param){
         BeanValidator.check(param);
         if(checkExist(param.getAclModuleId(),param.getName(),param.getId())){
@@ -37,6 +41,7 @@ public class SysAclService {
         acl.setOperaterTime(new Date());
         acl.setOperaterIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
         sysAclMapper.insert(acl);
+        sysLogService.saveAclLog(null,acl);
     }
 
     public void update(AclParam param){
@@ -50,6 +55,7 @@ public class SysAclService {
         after.setOperaterTime(new Date());
         after.setOperaterIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
         sysAclMapper.updateByPrimaryKeySelective(after);
+        sysLogService.saveAclLog(before,after);
     }
 
     public boolean checkExist(int aclModuleId,String name,Integer id){

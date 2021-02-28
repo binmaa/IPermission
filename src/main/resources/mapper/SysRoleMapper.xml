@@ -24,7 +24,7 @@
     delete from sys_role
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.ipermission.model.SysRole" >
+  <insert id="insert" parameterType="com.ipermission.model.SysRole" keyProperty="id" useGeneratedKeys="true">
     insert into sys_role (id, name, type, 
       status, remark, operator, 
       operater_time, operater_ip)

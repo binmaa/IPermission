@@ -25,7 +25,7 @@
     delete from sys_dept
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.ipermission.model.SysDept" >
+  <insert id="insert" parameterType="com.ipermission.model.SysDept" keyProperty="id" useGeneratedKeys="true">
     insert into sys_dept (id, name, parent_id, 
       level, seq, remark, 
       operator, operater_time, operater_ip

@@ -23,6 +23,9 @@ public class SysUserService {
     @Resource
     private SysUserMapper sysUserMapper;
 
+    @Resource
+    private SysLogService sysLogService;
+
     public void save(UserParam userParam){
         BeanValidator.check(userParam);
         if(checkTelephoneExist(userParam.getTelephone(),userParam.getId())){
@@ -37,10 +40,10 @@ public class SysUserService {
         //发送邮件
         Mail mail = Mail.builder().subject("权限管理初始密码").message("您的权限管理系统初始密码为：" + passWord)
                 .receivers(Sets.newHashSet(userParam.getMail())).build();
-        boolean b = MailUtil.send(mail);
+        /*boolean b = MailUtil.send(mail);
         if(!b){
             throw new ParamException("密码发送失败");
-        }
+        }*/
 
         passWord = MD5Util.encrypt(passWord);
         SysUser after = SysUser.builder().username(userParam.getUsername()).telephone(userParam.getTelephone()).
@@ -50,6 +53,7 @@ public class SysUserService {
         after.setOperaterIp(IpUtil.getUserIP(RequestHolder.getCurrentRequest()));
         after.setOperaterTime(new Date());
         sysUserMapper.insert(after);
+        sysLogService.saveUserLog(null,after);
     }
 
     public void update(UserParam userParam){
@@ -69,6 +73,7 @@ public class SysUserService {
         after.setOperaterIp(IpUtil.getUserIP(RequestHolder.getCurrentRequest()));
         after.setOperaterTime(new Date());//todo
         sysUserMapper.updateByPrimaryKeySelective(after);
+        sysLogService.saveUserLog(before,after);
     }
 
     private boolean checkTelephoneExist(String telephone,Integer userId){

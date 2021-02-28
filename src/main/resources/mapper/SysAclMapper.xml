@@ -29,7 +29,7 @@
     delete from sys_acl
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.ipermission.model.SysAcl" >
+  <insert id="insert" parameterType="com.ipermission.model.SysAcl" keyProperty="id" useGeneratedKeys="true">
     insert into sys_acl (id, code, name, 
       acl_module_id, url, type, 
       seq, status, remark, 

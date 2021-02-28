@@ -36,6 +36,9 @@ public class SysRoleService {
     @Resource
     private SysUserMapper sysUserMapper;
 
+    @Resource
+    private SysLogService sysLogService;
+
     public void save(RoleParam roleParam){
         BeanValidator.check(roleParam);
         if(checkExist(roleParam.getName(),roleParam.getId())){
@@ -47,6 +50,7 @@ public class SysRoleService {
         sysRole.setOperator(RequestHolder.getCurrentUser().getUsername());
         sysRole.setOperaterTime(new Date());
         sysRoleMapper.insertSelective(sysRole);
+        sysLogService.saveRoleLog(null,sysRole);
     }
 
     public void update(RoleParam roleParam){
@@ -54,14 +58,15 @@ public class SysRoleService {
         if(checkExist(roleParam.getName(),roleParam.getId())){
             throw new ParamException("当前角色名已存在");
         }
-        SysRole after = sysRoleMapper.selectByPrimaryKey(roleParam.getId());
-        Preconditions.checkNotNull(after,"待更新的角色不存在");
+        SysRole before = sysRoleMapper.selectByPrimaryKey(roleParam.getId());
+        Preconditions.checkNotNull(before,"待更新的角色不存在");
         SysRole sysRole = SysRole.builder().id(roleParam.getId()).name(roleParam.getName()).type(roleParam.getType()).
                 status(roleParam.getStatus()).remark(roleParam.getRemark()).build();
         sysRole.setOperaterIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));
         sysRole.setOperator(RequestHolder.getCurrentUser().getUsername());
         sysRole.setOperaterTime(new Date());
         sysRoleMapper.updateByPrimaryKeySelective(sysRole);
+        sysLogService.saveRoleLog(before,sysRole);
     }
 
     @Transactional
@@ -69,6 +74,8 @@ public class SysRoleService {
         sysRoleAclMapper.deleteByRoleId(roleId);
         sysRoleUserMapper.deleteByRoleId(roleId);
         sysRoleMapper.deleteByPrimaryKey(roleId);
+        SysRole before = sysRoleMapper.selectByPrimaryKey(roleId);
+        sysLogService.saveRoleLog(before,null);
     }
 
     public List<SysRole> getAllRole(){

@@ -4,7 +4,7 @@
   <resultMap id="BaseResultMap" type="com.ipermission.model.SysLog" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="type" property="type" jdbcType="INTEGER" />
-    <result column="target_id" property="targetId" jdbcType="VARCHAR" />
+    <result column="target_id" property="targetId" jdbcType="INTEGER" />
     <result column="operator" property="operator" jdbcType="VARCHAR" />
     <result column="operater_time" property="operaterTime" jdbcType="TIMESTAMP" />
     <result column="operater_ip" property="operaterIp" jdbcType="VARCHAR" />
@@ -37,7 +37,7 @@
       operator, operater_time, operater_ip, 
       status, old_value, new_value
       )
-    values (#{id,jdbcType=INTEGER}, #{type,jdbcType=INTEGER}, #{targetId,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=INTEGER}, #{type,jdbcType=INTEGER}, #{targetId,jdbcType=INTEGER},
       #{operator,jdbcType=VARCHAR}, #{operaterTime,jdbcType=TIMESTAMP}, #{operaterIp,jdbcType=VARCHAR}, 
       #{status,jdbcType=INTEGER}, #{oldValue,jdbcType=LONGVARCHAR}, #{newValue,jdbcType=LONGVARCHAR}
       )
@@ -81,7 +81,7 @@
         #{type,jdbcType=INTEGER},
       </if>
       <if test="targetId != null" >
-        #{targetId,jdbcType=VARCHAR},
+        #{targetId,jdbcType=INTEGER},
       </if>
       <if test="operator != null" >
         #{operator,jdbcType=VARCHAR},
@@ -110,7 +110,7 @@
         type = #{type,jdbcType=INTEGER},
       </if>
       <if test="targetId != null" >
-        target_id = #{targetId,jdbcType=VARCHAR},
+        target_id = #{targetId,jdbcType=INTEGER},
       </if>
       <if test="operator != null" >
         operator = #{operator,jdbcType=VARCHAR},
@@ -136,7 +136,7 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.ipermission.model.SysLogWithBLOBs" >
     update sys_log
     set type = #{type,jdbcType=INTEGER},
-      target_id = #{targetId,jdbcType=VARCHAR},
+      target_id = #{targetId,jdbcType=INTEGER},
       operator = #{operator,jdbcType=VARCHAR},
       operater_time = #{operaterTime,jdbcType=TIMESTAMP},
       operater_ip = #{operaterIp,jdbcType=VARCHAR},
@@ -148,11 +148,47 @@
   <update id="updateByPrimaryKey" parameterType="com.ipermission.model.SysLog" >
     update sys_log
     set type = #{type,jdbcType=INTEGER},
-      target_id = #{targetId,jdbcType=VARCHAR},
+      target_id = #{targetId,jdbcType=INTEGER},
       operator = #{operator,jdbcType=VARCHAR},
       operater_time = #{operaterTime,jdbcType=TIMESTAMP},
       operater_ip = #{operaterIp,jdbcType=VARCHAR},
       status = #{status,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="countBySearchDto" resultType="int" parameterType="map" >
+    select count(1)
+    from sys_log
+    <include refid="searchLogCondition"/>
+  </select>
+  <select id="getPageListBySearchDto" resultMap="ResultMapWithBLOBs" parameterType="map">
+    select <include refid="Base_Column_List"/>,<include refid="Blob_Column_List"/>
+    from sys_log
+    <include refid="searchLogCondition"/>
+    ORDER BY operater_time DESC
+    LIMIT #{page.offSet},#{page.pageSize}
+  </select>
+
+  <sql id="searchLogCondition">
+    <where>
+        <if test="search.type != null">
+            AND type = #{search.type}
+        </if>
+        <if test="search.beforeSeg != null and search.beforeSeg != ''">
+            AND old_value like #{search.beforeSeg}
+        </if>
+        <if test="search.afterSeg != null and search.afterSeg != ''">
+            AND new_value like #{search.afterSeg}
+        </if>
+        <if test="search.operator != null and search.operator != ''">
+            AND operator like #{search.operator}
+        </if>
+        <if test="search.fromTime != null">
+            AND operate_time &gt;= #{search.fromTime}
+        </if>
+        <if test="search.toTime != null">
+            AND operate_time &lt;= #{search.toTime}
+        </if>
+    </where>
+  </sql>
 </mapper>
