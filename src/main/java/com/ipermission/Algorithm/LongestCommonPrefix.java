@@ -11,7 +11,7 @@ public class LongestCommonPrefix {
             return "";
         }
         String defaultPre = strs[0];
-        for(int i = 0;i < strs.length;i++){
+        for(int i = 1;i < strs.length;i++){
             if(defaultPre == ""){
                 break;
             }
