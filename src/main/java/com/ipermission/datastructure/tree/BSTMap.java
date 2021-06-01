@@ -34,13 +34,13 @@ public class BSTMap <K extends Comparable<K>,V> implements Map<K,V>{
             return node = new Node(key,value);
         }
         if(key.compareTo(node.key) < 0){//key < node.key 在当前节点左侧 进入左子树
-            return add(node.left,key,value);
+            node.left = add(node.left,key,value);
         }else if(key.compareTo(node.key) > 0){
-            return add(node.right,key,value);
+            node.right = add(node.right,key,value);
         }else{
             node.value = value;//key == node.key 当前节点就是插入的节点
-            return node;
         }
+        return node;
     }
 
     @Override
